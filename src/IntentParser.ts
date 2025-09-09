@@ -36,6 +36,9 @@ export class IntentParser {
 
 Examples:
 - "Buy $5000 of AAPL" → {"intent": "BUY", "entities": {"symbol": "AAPL", "amount": 5000}, "confidence": 0.95, "needsConfirmation": true}
+- "buy spy" → {"intent": "BUY", "entities": {"symbol": "SPY"}, "confidence": 0.9, "needsConfirmation": true}
+- "purchase TSLA" → {"intent": "BUY", "entities": {"symbol": "TSLA"}, "confidence": 0.9, "needsConfirmation": true}
+- "sell NVDA" → {"intent": "SELL", "entities": {"symbol": "NVDA"}, "confidence": 0.9, "needsConfirmation": true}
 - "What's my portfolio status?" → {"intent": "STATUS", "entities": {}, "confidence": 0.9, "needsConfirmation": false}
 - "Set alert for TSLA at $200" → {"intent": "ALERT", "entities": {"symbol": "TSLA", "price": 200}, "confidence": 0.9, "needsConfirmation": false}
 - "Why did my portfolio drop today?" → {"intent": "ANALYZE", "entities": {"timeframe": "1d"}, "confidence": 0.85, "needsConfirmation": false}
@@ -96,28 +99,49 @@ Return only valid JSON:`;
     
     // Simple pattern matching fallbacks
     if (lowerCommand.includes('buy') || lowerCommand.includes('purchase')) {
-      const symbolMatch = command.match(/\b([A-Z]{1,5})\b/);
+      // Look for stock symbols (1-5 letters, case insensitive)
+      const symbolMatch = command.match(/\b([A-Za-z]{1,5})\b/g);
       const amountMatch = command.match(/\$([0-9,]+)/);
+      
+      // Filter out common words, keep likely symbols
+      let symbol = undefined;
+      if (symbolMatch) {
+        const filtered = symbolMatch.filter(word => 
+          !['buy', 'sell', 'of', 'the', 'and', 'or', 'at', 'for', 'in', 'on'].includes(word.toLowerCase())
+        );
+        symbol = filtered[0]?.toUpperCase(); // Convert to uppercase
+      }
       
       return {
         intent: 'BUY' as CommandIntentType,
         entities: {
-          symbol: symbolMatch?.[1],
+          symbol,
           amount: amountMatch ? parseInt(amountMatch[1].replace(',', '')) : undefined
         },
         originalText: command,
-        confidence: 0.6,
+        confidence: 0.7,
         needsConfirmation: true
       };
     }
 
     if (lowerCommand.includes('sell')) {
-      const symbolMatch = command.match(/\b([A-Z]{1,5})\b/);
+      // Look for stock symbols (1-5 letters, case insensitive)
+      const symbolMatch = command.match(/\b([A-Za-z]{1,5})\b/g);
+      
+      // Filter out common words, keep likely symbols
+      let symbol = undefined;
+      if (symbolMatch) {
+        const filtered = symbolMatch.filter(word => 
+          !['buy', 'sell', 'of', 'the', 'and', 'or', 'at', 'for', 'in', 'on'].includes(word.toLowerCase())
+        );
+        symbol = filtered[0]?.toUpperCase(); // Convert to uppercase
+      }
+      
       return {
         intent: 'SELL' as CommandIntentType,
-        entities: { symbol: symbolMatch?.[1] },
+        entities: { symbol },
         originalText: command,
-        confidence: 0.6,
+        confidence: 0.7,
         needsConfirmation: true
       };
     }
