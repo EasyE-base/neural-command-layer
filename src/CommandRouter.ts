@@ -67,27 +67,32 @@ export class CommandRouter {
       // Step 1: Gather all agent inputs in parallel
       const agentAnalysis = await this.gatherAgentInputs(entities.symbol!, command.intent);
 
-      // Step 2: Present agent analysis to user
+      // Step 2: Present agent analysis to user with character-driven responses
       let analysisMessage = `🤖 **Agent Swarm Analysis for ${entities.symbol}**\n\n`;
       
       if (agentAnalysis.marketData) {
-        analysisMessage += `📊 **Signal Agent**: Current price $${agentAnalysis.marketData.price} (${agentAnalysis.marketData.change > 0 ? '+' : ''}${agentAnalysis.marketData.change.toFixed(2)}%)\n`;
+        const blipResponse = this.getBlipResponse(agentAnalysis.marketData, entities.symbol!);
+        analysisMessage += `🟠 **Blip (Signal Agent)**: ${blipResponse}\n`;
       }
       
       if (agentAnalysis.sentiment) {
-        analysisMessage += `💭 **Sentiment Agent**: ${agentAnalysis.sentiment.score > 0.6 ? '🟢 Bullish' : agentAnalysis.sentiment.score < 0.4 ? '🔴 Bearish' : '🟡 Neutral'} (${(agentAnalysis.sentiment.score * 100).toFixed(0)}%)\n`;
+        const gillyResponse = this.getGillyResponse(agentAnalysis.sentiment, entities.symbol!);
+        analysisMessage += `🔵 **Gilly (Sentiment Agent)**: ${gillyResponse}\n`;
       }
       
       if (agentAnalysis.technical) {
-        analysisMessage += `📈 **Trend Agent**: ${agentAnalysis.technical.trend} trend, RSI: ${agentAnalysis.technical.rsi}\n`;
+        const margoResponse = this.getMargoResponse(agentAnalysis.technical, entities.symbol!);
+        analysisMessage += `🟢 **Margo (Trend Agent)**: ${margoResponse}\n`;
       }
       
       if (agentAnalysis.strategy) {
-        analysisMessage += `🎯 **Strategy Agent**: ${agentAnalysis.strategy.recommendation} (confidence: ${(agentAnalysis.strategy.confidence * 100).toFixed(0)}%)\n`;
+        const aquaResponse = this.getAquaResponse(agentAnalysis.strategy, command.intent, entities.symbol!);
+        analysisMessage += `🟣 **Aqua (Strategy Agent)**: ${aquaResponse}\n`;
       }
       
       if (agentAnalysis.risk) {
-        analysisMessage += `⚠️ **Risk Agent**: ${agentAnalysis.risk.status} - Risk Score: ${agentAnalysis.risk.score}/10\n`;
+        const sheldonResponse = this.getSheldonResponse(agentAnalysis.risk, entities.symbol!, command.intent);
+        analysisMessage += `⚪ **Sheldon (Risk Agent)**: ${sheldonResponse}\n`;
       }
 
       // Step 3: Make final recommendation
@@ -150,18 +155,29 @@ export class CommandRouter {
 
   private async handleStatusQuery(command: ParsedCommand): Promise<CommandResponse> {
     try {
-      // This would query portfolio status from risk-engine or a portfolio service
-      // For now, return a mock response
+      const agentStatuses = [
+        "🟠 **Blip**: *beep beep* All systems GO! Market data flowing like electricity! ⚡",
+        "🔵 **Gilly**: Vibes are good, fam! Social feeds looking spicy today 🌶️📱",
+        "🟢 **Margo**: Gracefully monitoring trend flows... all patterns in harmony 🌸",
+        "🟣 **Aqua**: Brain dome glowing! Strategy matrices updated and optimized 🧠✨",
+        "⚪ **Sheldon**: *nervous calculating* Risk parameters within bounds... for now ⚠️📊",
+        "⚫ **Tank**: Standing ready for execution. Orders locked and loaded 🎯",
+        "🤍 **Reflecta**: Performance metrics... analyzing... all agents operational 📈"
+      ];
+
+      const statusMessage = `🤖 **Agent Swarm Status Report**\n\n${agentStatuses.join('\n')}\n\n💼 **Portfolio Overview**:\n• Value: $50,000\n• Daily P&L: +$245.67 📈\n• Open Positions: 3\n• Swarm Uptime: 99.9% ⚡`;
+
       return {
         success: true,
-        message: 'Portfolio Status: Your trading swarm is active with 5 agents running.',
+        message: statusMessage,
         data: {
-          activeAgents: ['SignalAgent', 'SentimentAgent', 'TrendAgent', 'StrategyAgent', 'RiskAgent'],
+          activeAgents: ['Blip', 'Gilly', 'Margo', 'Aqua', 'Sheldon', 'Tank', 'Reflecta'],
           portfolioValue: '$50,000',
           dailyPnL: '+$245.67',
-          openPositions: 3
+          openPositions: 3,
+          swarmUptime: '99.9%'
         },
-        followUp: 'Would you like details on any specific positions or agent performance?'
+        followUp: 'Want to chat with any specific agent or see detailed position info? 🎮'
       };
     } catch (error) {
       return {
@@ -172,10 +188,21 @@ export class CommandRouter {
   }
 
   private async handleGeneralQuery(command: ParsedCommand): Promise<CommandResponse> {
+    const randomAgent = Math.floor(Math.random() * 7);
+    const agentResponses = [
+      "🟠 **Blip**: *beep beep* I heard you asking about something! What data do you need? Market prices? Volume? I've got ALL the numbers! ⚡",
+      "🔵 **Gilly**: Hey! I'm here to help! Need some market vibes? Social sentiment? Just ask! The internet is my playground! 📱✨",
+      "🟢 **Margo**: *graceful hum* I sense you seek guidance... I can share insights about market trends and patterns... 🌸",
+      "🟣 **Aqua**: *brain dome sparkling* Ooh, a question! I love questions! Need strategy advice? Portfolio optimization? My circuits are buzzing! 🧠💫",
+      "⚪ **Sheldon**: *cautious beeping* You're asking something... is it about risk? Please tell me it's about risk management! That's my specialty! ⚠️📊",
+      "⚫ **Tank**: Roger. Standing by for orders. Need execution? Trade management? I'm your bot. 🎯",
+      "🤍 **Reflecta**: Query detected. Available functions: trading, analysis, status reports, portfolio metrics. Specify requirements. 📈"
+    ];
+
     return {
       success: true,
-      message: `I understand you're asking: "${command.originalText}". I can help with trading commands, portfolio status, alerts, and analysis. What would you like to know?`,
-      followUp: 'Try commands like "buy AAPL", "what\'s my status", or "analyze my portfolio".'
+      message: `${agentResponses[randomAgent]}\n\n🤖 **Neural Command Layer**: I understand you're asking: "${command.originalText}". Our agent swarm can help with trading, analysis, portfolio status, and market insights!`,
+      followUp: '💡 Try: "buy AAPL", "show status", "analyze portfolio", or "what\'s the sentiment on Tesla?"'
     };
   }
 
@@ -218,15 +245,18 @@ export class CommandRouter {
   }
 
   private async handleAnalysisCommand(command: ParsedCommand): Promise<CommandResponse> {
-    // This would integrate with analytics service or meta-agent
+    const reflectaAnalysis = `🤍 **Reflecta's Deep Analysis**:\n\n*chrome surface gleaming with data readouts*\n\nPortfolio metrics indicate... optimal performance vectors in technology sector. AAPL +2.1% correlation with MSFT +1.8% suggests systematic alpha capture. Energy sector volatility absorbed by diversification matrix.\n\n*stat readouts flickering*\n\nQuantitative assessment: Sharpe ratio 1.47... acceptable risk-adjusted returns. Sector allocation efficiency: 87.3%. Recommendation: Maintain current trajectory with minor rebalancing considerations.\n\n📊 *processing complete*`;
+    
     return {
       success: true,
-      message: 'Analysis: Your portfolio performance is driven by strong tech sector exposure. Recent gains in AAPL (+2.1%) and MSFT (+1.8%) offset losses in energy sector.',
+      message: reflectaAnalysis,
       data: {
         analysis: 'portfolio_performance',
-        timeframe: command.entities.timeframe || '1d'
+        timeframe: command.entities.timeframe || '1d',
+        sharpeRatio: 1.47,
+        sectorEfficiency: 87.3
       },
-      followUp: 'Would you like a deeper analysis of any specific positions?'
+      followUp: '🤍 Reflecta: "Additional granular analysis available upon request. Which specific metrics require examination?"'
     };
   }
 
@@ -239,11 +269,21 @@ export class CommandRouter {
   }
 
   private async handleStopCommand(command: ParsedCommand): Promise<CommandResponse> {
+    const emergencyResponses = [
+      "🟠 **Blip**: *circuits powering down* WHOA! Emergency stop activated! All data streams paused! 🛑",
+      "⚫ **Tank**: Copy that. All weapons safe. Standing down. Orders suspended. 🎯❌",
+      "⚪ **Sheldon**: *relieved calculating* FINALLY! Risk exposure minimized! All stop losses engaged! 🛡️",
+      "🟣 **Aqua**: *brain dome dimming* Strategic pause initiated. All decision matrices on hold... 💤",
+      "🤍 **Reflecta**: Emergency protocol executed. All trading functions suspended. Status: SAFE MODE. 🔒"
+    ];
+
+    const stopMessage = `🚨 **EMERGENCY STOP ACTIVATED** 🚨\n\n${emergencyResponses.join('\n')}\n\n🛑 All trading operations have been suspended for safety.`;
+
     return {
       success: true,
-      message: 'Emergency stop activated. All trading agents have been paused.',
-      data: { action: 'emergency_stop' },
-      followUp: 'Use "resume trading" to reactivate agents.'
+      message: stopMessage,
+      data: { action: 'emergency_stop', timestamp: new Date().toISOString() },
+      followUp: '⚫ Tank: "Awaiting orders to resume operations, Commander."'
     };
   }
 
@@ -398,6 +438,45 @@ export class CommandRouter {
       suggestedQuantity: shouldProceed ? Math.max(1, Math.floor(10 * consensus)) : 1,
       suggestedPrice: analysis.marketData?.price
     };
+  }
+
+  private getBlipResponse(marketData: any, symbol: string): string {
+    const changeEmoji = marketData.change > 0 ? "🚀" : marketData.change < 0 ? "📉" : "😐";
+    const excitement = marketData.change > 2 ? "WHOA! WHOA! WHOA!" : marketData.change > 0 ? "Ooh! Ooh!" : "Eh...";
+    
+    return `${excitement} ${symbol} is at $${marketData.price} ${changeEmoji} ${marketData.change > 0 ? '+' : ''}${marketData.change.toFixed(2)}%! *beep beep* Volume's at ${(marketData.volume / 1000000).toFixed(1)}M shares! *circuit buzzing* Data looks ${marketData.change > 0 ? 'TASTY' : 'kinda stale'} to me! 🔥`;
+  }
+
+  private getGillyResponse(sentiment: any, symbol: string): string {
+    const vibeCheck = sentiment.score > 0.6 ? "The vibes are IMMACULATE" : sentiment.score < 0.4 ? "Big yikes energy" : "Neutral vibes, I guess";
+    const emoji = sentiment.score > 0.6 ? "🚀💎" : sentiment.score < 0.4 ? "📉😬" : "😐🤷‍♀️";
+    
+    const memeRef = sentiment.score > 0.6 ? "To the moon! 🌙" : sentiment.score < 0.4 ? "RIP in chat 💀" : "Sideways action, no cap";
+    
+    return `${vibeCheck} on ${symbol} rn ${emoji}! Sentiment score: ${(sentiment.score * 100).toFixed(0)}%. ${memeRef} *scrolling through social feeds* The internet says... well, you know how it is! 📱✨`;
+  }
+
+  private getMargoResponse(technical: any, symbol: string): string {
+    const trendFlow = technical.trend === 'Bullish' ? "flows upward like a gentle stream" : technical.trend === 'Bearish' ? "descends gracefully like autumn leaves" : "moves in perfect balance";
+    const rsiWisdom = technical.rsi > 60 ? "perhaps approaching overbought tranquility" : technical.rsi < 40 ? "resting in oversold serenity" : "dwelling in harmonious equilibrium";
+    
+    return `*graceful processor hum* ${symbol} ${trendFlow}... RSI of ${technical.rsi} suggests ${rsiWisdom}. Support beckons at $${technical.support?.toFixed(2)}, resistance awaits at $${technical.resistance?.toFixed(2)}. The patterns whisper of ${technical.trend.toLowerCase()} intentions... 🌸`;
+  }
+
+  private getAquaResponse(strategy: any, intent: string, symbol: string): string {
+    const brainSpark = strategy.confidence > 0.8 ? "💡✨EUREKA!✨💡" : strategy.confidence > 0.6 ? "*brain circuits lighting up*" : "*thoughtful processing*";
+    const playfulTone = strategy.recommendation === intent ? "My genius brain agrees!" : "Hmm, my calculations suggest otherwise...";
+    
+    return `${brainSpark} ${playfulTone} Strategy matrix says: ${strategy.recommendation} with ${(strategy.confidence * 100).toFixed(0)}% confidence! *dome glowing brighter* ${strategy.reasoning}. Want to see my full calculation matrix? It's quite elegant! 🧠💫`;
+  }
+
+  private getSheldonResponse(risk: any, symbol: string, intent: string): string {
+    const panicLevel = risk.score > 7 ? "🚨 RED ALERT! DANGER! 🚨" : risk.score > 5 ? "⚠️ Caution advised..." : "✅ Within acceptable parameters";
+    const sheldonWorry = risk.score > 7 ? "*calculator spinning frantically*" : risk.score > 5 ? "*nervous beeping*" : "*calm calculating*";
+    
+    const riskFactors = risk.factors?.join(', ') || 'standard market factors';
+    
+    return `${sheldonWorry} ${panicLevel} Risk assessment for ${symbol}: ${risk.score}/10! Status: ${risk.status}. Factors detected: ${riskFactors}. *chest calculator flashing* ${intent === 'SELL' ? 'At least you\'re not buying more risk!' : 'Are you SURE about this?!'} 📊⚠️`;
   }
 
   private async callMCPService(service: string, tool: string, input: any): Promise<any> {
