@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Neural Command Layer API</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .endpoint { background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        code { background: #eee; padding: 2px 5px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>Neural Command Layer API</h1>
+    <p>Natural language interface for agentic trading swarm powered by Claude AI.</p>
+    
+    <h2>API Endpoints</h2>
+    
+    <div class="endpoint">
+        <h3>Health Check</h3>
+        <p><code>GET /api/health</code></p>
+        <p>Returns service status</p>
+    </div>
+    
+    <div class="endpoint">
+        <h3>Process Command</h3>
+        <p><code>POST /api/command</code></p>
+        <p>Process natural language trading commands</p>
+        <p>Body: <code>{"command": "buy $1000 worth of AAPL"}</code></p>
+    </div>
+    
+    <div class="endpoint">
+        <h3>MCP Tool Call</h3>
+        <p><code>POST /api/call</code></p>
+        <p>Direct MCP tool invocation</p>
+        <p>Body: <code>{"tool": "command_parser", "input": {...}}</code></p>
+    </div>
+</body>
+</html>
