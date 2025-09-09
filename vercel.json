@@ -2,15 +2,6 @@
   "version": 2,
   "buildCommand": "npm run build",
   "installCommand": "npm install --ignore-scripts",
-  "builds": [
-    {
-      "src": "src/index.ts",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": ["src/**/*", "package.json"]
-      }
-    }
-  ],
   "routes": [
     {
       "src": "/(.*)",
