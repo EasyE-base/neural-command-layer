@@ -5,14 +5,14 @@
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "src/index.ts"
+      "dest": "api/index.ts"
     }
   ],
   "env": {
     "NODE_ENV": "production"
   },
   "functions": {
-    "src/index.ts": {
+    "api/index.ts": {
       "memory": 1024,
       "maxDuration": 30
     }
