@@ -19,6 +19,7 @@
     "typescript": "^5.4.0",
     "tsx": "^4.7.0",
     "eslint": "^9.0.0",
-    "@types/node": "^20.11.30"
+    "@types/node": "^20.11.30",
+    "@vercel/node": "^3.0.0"
   }
 }
